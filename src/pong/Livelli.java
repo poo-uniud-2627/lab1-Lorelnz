@@ -14,6 +14,12 @@ package pong;
 public class Livelli {
 
     // scrivete qui i campi che vi servono
+    private final int numeroLivelli;
+    private final int vite;
+    private final Lato umano;
+    private int livelloAttuale;
+    private int viteRimaste;
+    private boolean statoGioco;
 
     /**
      * Un gioco nuovo.
@@ -22,42 +28,50 @@ public class Livelli {
      * Lancia IllegalArgumentException se numeroLivelli o vite è minore di 1, o se umano è null.
      */
     public Livelli(int numeroLivelli, int vite, Lato umano) {
-        // scrivete qui
+        if( numeroLivelli < 1 || vite < 1 || umano == null ){
+            throw new IllegalArgumentException("I valori inseriti non sono validi");
+        }
+        this.numeroLivelli = numeroLivelli;
+        this.vite = vite;
+        this.umano = umano;
+        viteRimaste = this.vite;
+        livelloAttuale = 1;
+        statoGioco = false; // false se gioco non è completato nè perso, true se è completato
     }
 
     /** Il livello a cui si gioca, fra 1 e getNumeroLivelli(). */
     public int getLivello() {
-        return 0; // scrivete qui
+        return livelloAttuale; // scrivete qui
     }
 
     /** Quanti livelli ha il gioco. */
     public int getNumeroLivelli() {
-        return 0; // scrivete qui
+        return numeroLivelli; // scrivete qui
     }
 
     /** Le vite che restano, fra 0 e quelle iniziali. */
     public int getVite() {
-        return 0; // scrivete qui
+        return viteRimaste; // scrivete qui
     }
 
     /** Il lato su cui gioca la persona (l'altro è il giocatore automatico). */
     public Lato getUmano() {
-        return null; // scrivete qui
+        return umano; // scrivete qui
     }
 
     /** Vero se è stato vinto l'ultimo livello. */
     public boolean isCompletato() {
-        return false; // scrivete qui
+        return statoGioco; 
     }
 
     /** Vero se le vite sono finite. */
     public boolean isPerso() {
-        return false; // scrivete qui
+        return viteRimaste == 0; 
     }
 
     /** Vero se il gioco è completato o perso. */
     public boolean isFinito() {
-        return false; // scrivete qui
+        return isCompletato() || isPerso(); 
     }
 
     /**
@@ -71,7 +85,19 @@ public class Livelli {
      * Lancia IllegalArgumentException se vincitore è null, e non cambia niente.
      */
     public void partitaFinita(Lato vincitore) {
-        // scrivete qui
+        if( vincitore == null ) {
+            throw new IllegalArgumentException("Valore inserito non valido");
+        }
+        if( isFinito() ) {return;}
+        if( vincitore == umano ) {
+            if( livelloAttuale == numeroLivelli ) {
+                statoGioco = true;
+            } else {
+                livelloAttuale++;
+            }
+        } else {
+            viteRimaste--;
+        }
     }
 
     /**
@@ -80,6 +106,8 @@ public class Livelli {
      * Promette: livello 1, con tutte le vite; il gioco non è completato né perso.
      */
     public void ricomincia() {
-        // scrivete qui
+        livelloAttuale = 1;
+        viteRimaste = vite;
+        statoGioco = false;
     }
 }

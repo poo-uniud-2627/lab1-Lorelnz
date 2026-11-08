@@ -33,6 +33,9 @@ public class Punteggio {
      * Promette: come prima. Lancia `IllegalArgumentException` se `puntiPerVincere` è minore di 1 o `scartoMinimo` è minore di 1.
      */
     public Punteggio(int puntiPerVincere, int scartoMinimo) {
+        if ( puntiPerVincere < 1 || scartoMinimo < 1 ) {
+            throw new IllegalArgumentException("Scarto minimo oppure punti per vincere sono minore del consentito");
+        }
         this.puntiPerVincere = puntiPerVincere;
         this.scartoMinimo = scartoMinimo;
     }
@@ -41,9 +44,11 @@ public class Punteggio {
      * Il lato chi ha fatto un punto.
      * Pretende: niente. 
      * Promette: come prima. Se `chi` è null lancia `IllegalArgumentException`, anche a partita finita, e non cambia niente.
-     *           Se la partita era già finita, non cambia niente.
      */
     public void segnaPunto(Lato chi) {
+        if( chi == null ) {
+            throw new IllegalArgumentException("Il chi inserito non è valido");
+        }
         if (!isFinita()) {
             if (chi == Lato.DESTRA) {
                 puntiDestra++;
@@ -70,7 +75,9 @@ public class Punteggio {
      * Promette: come prima. Lancia `IllegalArgumentException` se `chi` è null.
      */
     public int getPunti(Lato chi) {
-        if (chi == Lato.DESTRA) {
+        if ( chi == null ) {
+            throw new IllegalArgumentException("Il chi inserito non è valido");
+        } else if (chi == Lato.DESTRA) {
             return puntiDestra;
         } else {
             return puntiSinistra;
@@ -139,7 +146,33 @@ public class Punteggio {
         finita = false;
     }
 
+    /**
+     * Invariante di rappresentazione:
+     * - puntiPerVincere >= 1 e scartoMinimo >= 1;
+     * - storia non è null e non contiene elementi null;
+     * - puntiSinistra e puntiDestra corrispondono al numero di punti di SINISTRA e DESTRA in storia;
+     * - in storia non ci sono punti successivi a quello che ha assegnato la vittoria;
+     * - finita è true se e solo se un lato ha vinto, e vincitore è quel lato (altrimenti null).
+     */
     boolean repOK() {
-        return true; // da scrivere
+        if( puntiPerVincere < 1 || scartoMinimo < 1 || storia == null ) {
+            return false;
+        }
+        int d = 0;
+        int s = 0;
+        Lato vincitoreCalcolato = null;
+        for( int i = 0; i < storia.size(); i++ ) {
+            if( storia.get(i) == null ) {
+                return false;
+            }
+            if( vincitoreCalcolato != null ) {return false;}
+            if( storia.get(i) == Lato.DESTRA ) {d++;} else {s++;}
+            if( d >= puntiPerVincere && (d-s) >= scartoMinimo ) {
+                vincitoreCalcolato = Lato.DESTRA;
+            } else if ( s >= puntiPerVincere && (s-d) >= scartoMinimo) {
+                vincitoreCalcolato = Lato.SINISTRA;
+            }
+        }
+        return s == puntiSinistra && d == puntiDestra && vincitore == vincitoreCalcolato && finita == (vincitoreCalcolato != null);
     }
 }
